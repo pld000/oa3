@@ -1,0 +1,10 @@
+Кластер 1: Core
+- GameProcessor
+- GameState
+
+Кластер 2: Mechanics
+- ScoreCalculator
+- BonusHandler
+
+Кластер 3: Utilities
+- Logger
