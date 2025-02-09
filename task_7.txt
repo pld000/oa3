@@ -1,10 +1,14 @@
+Кластер 1: Interface
+- GameBoard
+- Cell
+
 Кластер 1: Core
 - GameProcessor
 - GameState
 
 Кластер 2: Mechanics
-- ScoreCalculator
-- BonusHandler
+- Score
+- Bonus
 
 Кластер 3: Utilities
-- Logger
+- Statistic
