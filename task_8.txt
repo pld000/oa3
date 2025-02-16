@@ -3,7 +3,7 @@ interface Combination {
     id: number,
     type: 'row' | 'column',
     cellIds: number[],
-    bonus: true,
+    bonus: boolean,
 }
 
 interface LogInfo {
