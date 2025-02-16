@@ -15,16 +15,7 @@ interface LogInfo {
 GameProcessor
 - Команды:
   - startGame(): void - Запускает игру
-    – получает от GameState начальное состояние игрового поля
-    - создает объект игрового поля GameBoard
-    - передает состояние игровому полю для отрисовки
-
   - processPlayerAction(): void - реагирует на действия пользователя
-    - проверка валидности действия пользователя GameState.isTransitionValid
-    - в случае успеха применяем действие GameState.ChangeCells
-    – получаем игровые комбинации нового состояния GameState.getCombinations
-    - в случае бонусной комбинации дополняем информацией о бонусе Bonus.extend
-    - подсчитываем очки, записываем статистику Score.calculate
 
 GameState
 - Запросы:
@@ -51,3 +42,13 @@ Score
   - calculate(Combination[]): void
     - подсчитывает очки по заданным условиям
     - записывает в статистику данные хода Statistic.write(info: LogInfo)
+
+GameBoard
+- Команды:
+  - draw(state: Cell[][]): void
+    - рисует матрицу 8 на 8
+
+
+Cell
+- neighbors: number[]
+- position: number[]

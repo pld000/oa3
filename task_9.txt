@@ -1,77 +1,20 @@
 Схема создания объектов
 
+Инициализация игры
+ - при запуске игры создаётся объект GameProcess.
+ - в GameProcess инициализируются GameState, GameBoard, Bonus, Score
+ – получает от GameState начальное состояние игрового поля
+ - создает объект игрового поля GameBoard
+ - передает состояние игровому полю для отрисовки
 
-GameProcessor
-- Команды:
-  - startGame(): void - Запускает игру
-    – получает от GameState начальное состояние игрового поля
-    - создает объект игрового поля GameBoard
-    - передает состояние игровому полю для отрисовки
-
-  - processPlayerAction(): void - реагирует на действия пользователя
-    - проверка валидности действия пользователя GameState.isTransitionValid
-    - в случае успеха применяем действие GameState.ChangeCells
-    – получаем игровые комбинации нового состояния GameState.getCombinations
-    - в случае бонусной комбинации дополняем информацией о бонусе Bonus.extend
-    - подсчитываем очки, записываем статистику Score.calculate
-
-GameState
-- Запросы:
-  - getInitialState(): Cell[][]
-    - возвращает начальное состояние игрового поля
-  - isTransitionValid(a: Cell, b: Cell): boolean;
-    - проверяет возможность перехода в новое состояние
-  - getCombinations(state: Cell[][]): Combination[]
-    - возвращает массив найденных комбинаций, отсортированный в порядке убывания длинны cellIds
-  - getNormalizedState(state: Cell[][])
-    - возвращает state с заполненными ячейками, после удаления трех и более ячеек в линии
-
-- Команды:
-  - ChangeCells(a: Cell, b: Cell): void
-    - меняет ячейки местами
-
-Bonus
-- Запросы:
-  - extendCombinations(combinations: Combination[]): Combination[]
-    - если удовлетворяет условиям бонуса (в линию больше 4), то cellIds заполняются всеми элементами
-
-Score
-- Команды:
-  - calculate(Combination[]): void
-    - подсчитывает очки по заданным условиям
-    - записывает в статистику данные хода Statistic.write(info: LogInfo)
-
-1 Инициализация игры
-   - При запуске игры создаётся объект GameEngine.
-   - GameEngine запрашивает у StateMachine начальное состояние (например, StartState).
-   - Фабрика (MatchHandlerFactory) инициализирует обработчики комбинаций.
-   - InputProcessor подключается для обработки действий игрока.
-
-2 Создание обработчиков комбинаций и бонусов
-   - Используется Factory Method:
-   - MatchHandlerFactory создаёт объекты обработчиков комбинаций (LineMatchHandler, CrossMatchHandler).
-   - BonusHandlerFactory создаёт объекты для обработки бонусов (RowBonusHandler, ColumnBonusHandler).
-
-3 Состояния игры
-   - Состояния реализуются с помощью паттерна State:
-     - Классы состояний (StartState, PlayState, EndState) создаются StateMachine при необходимости перехода.
-
-Обработка событий
-
-1 Ввод игрока
-   - Игрок выполняет действие → событие отправляется в InputProcessor.
-   - InputProcessor валидирует ввод и вызывает processPlayerAction у GameEngine.
-
-2 Изменение состояния
-   - GameEngine проверяет текущее состояние через StateMachine.
-   - Если требуется переход, вызывается метод `transitionToState`.
-
-3 Обработка комбинаций
-   - GameEngine определяет тип комбинации и вызывает обработчик через MatchHandlerFactory.
-   - Обработчик обновляет очки через ScoreCalculator.
-
-4 Логгирование
-   - Все ключевые события (например, начало игры, переход между состояниями, завершение) отправляются в Logger.
+Игрок совершает действие
+ - проверка валидности действия пользователя GameState.isTransitionValid
+ - в случае успеха применяем действие GameState.ChangeCells
+ – получаем игровые комбинации нового состояния GameState.getCombinations
+ - в случае бонусной комбинации дополняем информацией о бонусе Bonus.extend
+ - подсчитываем очки, записываем статистику Score.calculate
+ - получаем новое состояние GameState.getNormalizedState
+ - отрисовка нового состояния
 
 Увязка с технологиями и фреймворками
    - Интерфейс в игре упрощенный, UI - фреймворк использоваться не будут
