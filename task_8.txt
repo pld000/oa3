@@ -1,87 +1,53 @@
--------------------- Шаг 4. --------------------
+cellIds - номера ячеек на удаление, т.е. три и более ячеек в линию
+interface Combination {
+    id: number,
+    type: 'row' | 'column',
+    cellIds: number[],
+    bonus: true,
+}
+
+interface LogInfo {
+    move: string;
+    bonus: string;
+    score: number
+}
+
 GameProcessor
-- Назначение: Управляет основным игровым процессом.
-- Запросы:
-  - getCurrentState(): GameState – возвращает текущее состояние игры.
-  - isGameOver(): boolean – проверяет, завершена ли игра.
 - Команды:
-  - initializeGame(): void – инициализирует игру.
-  - processPlayerAction(action: PlayerAction): void – обрабатывает действие игрока.
-  - endGame(): void – завершает игру.
-- Ограничения:
-  - Все действия игрока должны быть валидны в текущем состоянии игры.
+  - startGame(): void
+    – получает от GameState начальное состояние игрового поля
+    - создает объект игрового поля GameBoard
+    - передает состояние игровому полю для отрисовки
+
+  - processPlayerAction(): void
+    - GameState.isTransitionValid
+    - GameState.ChangeCells
+    – GameState.getCombinations
+    - Bonus.extend
+    - Score.calculate
 
 GameState
-- Назначение: Управляет состояниями игры (например, запуск, активная игра, завершение).
 - Запросы:
-  - getCurrentState(): GameState – возвращает текущее состояние.
+  - getInitialState(): Cell[][]
+    - возвращает начальное состояние игрового поля
+  - isTransitionValid(a: Cell, b: Cell): boolean;
+    - проверяет возможность перехода в новое состояние
+  - getCombinations(state: Cell[][]): Combination[]
+    - возвращает массив найденных комбинаций, отсортированный в порядке убывания длинны cellIds
+  - getNormalizedState(state: Cell[][])
+    - возвращает state с заполненными ячейками, после удаления трех и более ячеек в линии
+
 - Команды:
-  - transitionToState(state: GameState): void – выполняет переход в указанное состояние.
-- Ограничения:
-  - Переход между состояниями возможен только по определённым правилам.
+  - ChangeCells(a: Cell, b: Cell): void
+    - меняет ячейки местами
 
-MatchHandlerFactory
-- Назначение: Создаёт обработчики для обработки комбинаций.
+Bonus
 - Запросы:
-  - getHandler(type: CombinationType): MatchHandler – возвращает обработчик для заданного типа комбинации.
+  - extendCombinations(combinations: Combination[]): Combination[]
+    - если удовлетворяет условиям бонуса (в линию больше 4), то cellIds заполняются всеми элементами
 
-ScoreCalculator
-- Назначение: Подсчитывает очки за ходы игрока.
-- Запросы:
-  - calculateScore(combination: Combination): int – возвращает количество очков за комбинацию.
-
-BonusHandler
-- Назначение: Обрабатывает бонусные действия.
-- Запросы:
-  - canActivateBonus(bonusType: BonusType): boolean – проверяет, может ли быть активирован бонус.
+Score
 - Команды:
-  - activateBonus(bonusType: BonusType): void – активирует бонус.
-
-InputProcessor
-- Назначение: Обрабатывает ввод пользователя.
-- Запросы:
-  - isValidAction(action: PlayerAction): boolean – проверяет корректность действия игрока.
-- Команды:
-  - processInput(action: PlayerAction): void – обрабатывает ввод и передаёт его в GameEngine.
-
-Logger
-- Назначение: Ведёт запись событий.
-- Команды:
-  - logEvent(event: LogEvent): void – записывает событие в журнал.
-
-
--------------------- Шаг 5. --------------------
-AbstractMatchHandler (класс поведения)
-- Назначение: Фиксирует общую логику для обработчиков комбинаций.
-- Запросы:
-  - getCombinationType(): CombinationType – возвращает тип комбинации.
-- Команды:
-  - processCombination(combination: Combination): void – обрабатывает комбинацию (детали реализации остаются в наследниках).
-
-Конкретные наследники:
-- LineMatchHandler – обработка комбинации "линия".
-- CrossMatchHandler – обработка комбинации "крест".
-
-AbstractBonusHandler (класс поведения)
-- Назначение: Фиксирует общую логику для обработки бонусов.
-- Запросы:
-  - getBonusType(): BonusType – возвращает тип бонуса.
-- Команды:
-  - applyBonus(target: GameField): void – применяет бонус (детали реализации остаются в наследниках).
-
-Конкретные наследники:
-- RowBonusHandler – обработка бонуса удаления строки.
-- ColumnBonusHandler – обработка бонуса удаления столбца.
-
-AbstractState (класс поведения)
-- Назначение: Фиксирует поведение для состояний игры.
-- Запросы:
-  - isTransitionAllowed(toState: GameState): boolean – проверяет возможность перехода в другое состояние.
-- Команды:
-  - onEnter(): void – действия при входе в состояние.
-  - onExit(): void – действия при выходе из состояния.
-
-Конкретные наследники:
-- StartState – поведение для состояния "Запуск".
-- PlayState – поведение для состояния "Игра".
-- EndState – поведение для состояния "Завершение".
+  - calculate(Combination[]): void
+    - подсчитывает очки по заданным условиям
+    - записывает в статистику данные хода Statistic.write(info: LogInfo)
